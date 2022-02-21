@@ -3,4 +3,6 @@
 
 ### 2. systemd 등록
 ```
-sudo cp /home/ubuntu/zookeeper/
+sudo cp /home/ubuntu/zookeeper/confluent-zookeeper.service /lib/systemd/system/
+sudo systemctl daemon-reload
+```

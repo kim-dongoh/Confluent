@@ -5,9 +5,9 @@ After=network.target
 
 [Service]
 Type=simple
-User=cp-kafka
-Group=confluent
-ExecStart=/usr/bin/zookeeper-server-start /etc/kafka/zookeeper.properties
+User=ubuntu
+Group=ubuntu
+ExecStart=/home/ubuntu/confluent-7.0.1/bin/zookeeper-server-start /home/ubuntu/zookeeper/zookeeper.properties
 LimitNOFILE=100000
 TimeoutStopSec=180
 Restart=no
