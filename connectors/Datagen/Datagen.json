@@ -4,7 +4,7 @@
     "connector.class": "io.confluent.kafka.connect.datagen.DatagenConnector",
     "kafka.topic": "test",
     "quickstart": "product",
-    "output.data.format": "JSON",
-    "format.class": "io.confluent.connect.s3.format.json.JsonFormat"
+    "format.class": "io.confluent.connect.s3.format.json.JsonFormat",
+    "output.data.format": "JSON"
   }
 }
