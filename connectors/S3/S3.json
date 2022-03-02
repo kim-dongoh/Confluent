@@ -18,6 +18,9 @@
     "locale": "ko_KR",
     "partitioner.class": "io.confluent.connect.storage.partitioner.TimeBasedPartitioner",
     "path.format": "'Year'=YYYY/'Month'=MM/'Day'=dd/'Hour'=HH",
-    "partition.duration.ms": "3600000"
+    "partition.duration.ms": "3600000",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schema.registry.url": "<Schema Registry의 주소:8081>",
+    "schemaRegistryLocation": "<Schema Registry의 주소:8081>"
   }
 }
