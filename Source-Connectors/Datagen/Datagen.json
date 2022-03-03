@@ -1,5 +1,5 @@
 {
-  "name": "Datagen-Schema",
+  "name": "Datagen",
   "config": {
     "connector.class": "io.confluent.kafka.connect.datagen.DatagenConnector",
     "kafka.topic": "test",
