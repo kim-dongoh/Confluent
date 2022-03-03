@@ -1,0 +1,18 @@
+{
+  "name": "Debezium-Postgresql",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "plugin.name": "pgoutput",
+    "database.hostname": "<Postgres-Server의 IP>",
+    "slot.name": "debezium",
+    "database.port": "5432",
+    "database.user": "ubuntu",
+    "database.password": "tlgksqn31dlf",
+    "database.dbname": "test",
+    "database.server.name": "cdc",
+    "output.data.format": "JSON",
+    "topic.creation.default.replication.factor": "-1",
+    "topic.creation.default.partitions": "-1"
+  }
+}
