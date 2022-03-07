@@ -1,0 +1,20 @@
+{
+  "name": "gcs",
+  "config": {
+    "connector.class": "io.confluent.connect.gcs.GcsSinkConnector",
+    "tasks.max": "1",
+    "topics": "test",
+    "format.class": "io.confluent.connect.gcs.format.json.JsonFormat",
+    "flush.size": "2100000000",
+    "rotate.schedule.interval.ms": "60000",
+    "gcs.bucket.name": "<GCS 버킷명>",
+    "gcs.credentials.json": "<GCS credential file의 내용을 입력>",
+    "storage.class": "io.confluent.connect.gcs.storage.GcsStorage",
+    "partitioner.class": "io.confluent.connect.storage.partitioner.TimeBasedPartitioner",
+    "partition.duration.ms": "3600000",
+    "path.format": "'Year'=YYYY/'Month'=MM/'Day'=dd/'Hour'=HH",
+    "locale": "ko_KR",
+    "timezone": "Asia/Seoul",
+    "output.data.format": "JSON"
+  }
+}
