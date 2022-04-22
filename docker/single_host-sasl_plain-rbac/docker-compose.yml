@@ -82,7 +82,37 @@ services:
       KAFKA_LISTENER_NAME_EXTERNAL_OAUTHBEARER_SASL_JAAS_CONFIG: |
               org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
               publicKeyPath="/tmp/conf/public.pem";
+     
 
+      # CONFIGURE AUTHORIZER
+      # Setup kafka to use RBAC authorizer
+      KAFKA_AUTHORIZER_CLASS_NAME: io.confluent.kafka.security.authorizer.ConfluentServerAuthorizer
+      KAFKA_CONFLUENT_AUTHORIZER_ACCESS_RULE_PROVIDERS: CONFLUENT,ZK_ACL
+
+      # ======================== CONFIGURE MDS ====================================
+      # Configure how MDS talks to broker
+      KAFKA_CONFLUENT_METADATA_BOOTSTRAP_SERVERS: INTERNAL://kafka1:8091
+      KAFKA_CONFLUENT_METADATA_SASL_MECHANISM: PLAIN
+      KAFKA_CONFLUENT_METADATA_SASL_JAAS_CONFIG: |
+        org.apache.kafka.common.security.plain.PlainLoginModule required \
+        username="mds" \
+        password="mds-secret";
+      KAFKA_CONFLUENT_METADATA_TOPIC_REPLICATION_FACTOR: 2
+
+      # Configure MDS listener and http server
+      KAFKA_CONFLUENT_METADATA_SERVER_AUTHENTICATION_METHOD: BEARER
+      KAFKA_CONFLUENT_METADATA_SERVER_LISTENERS: http://0.0.0.0:8091
+      KAFKA_CONFLUENT_METADATA_SERVER_ADVERTISED_LISTENERS: http://kafka1:8091
+
+      # Configure RBAC token server (authentication)
+      KAFKA_CONFLUENT_METADATA_SERVER_TOKEN_MAX_LIFETIME_MS: 3600000
+      KAFKA_CONFLUENT_METADATA_SERVER_TOKEN_SIGNATURE_ALGORITHM: RS256
+      KAFKA_CONFLUENT_METADATA_SERVER_TOKEN_KEY_PATH: /tmp/conf/keypair.pem
+      ###########################################################KAFKA_CONFLUENT_METADATA_SERVER_PUBLIC_KEY_PATH: /tmp/conf/public.pem
+      
+
+
+      # ======================== CONFIGURE METRICS REPORTER =======================
       # Confluent Metrics Reporter
       KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 2
@@ -112,17 +142,6 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_DEFAULT_REPLICATION_FACTOR: 2
 
-      # ======================== CONFIGURE MDS ====================================
-      KAFKA_AUTHORIZER_CLASS_NAME: io.confluent.kafka.security.authorizer.ConfluentServerAuthorizer
-
-      KAFKA_CONFLUENT_METADATA_BOOTSTRAP_SERVERS: INTERNAL://kafka1:8091
-      KAFKA_CONFLUENT_METADATA_SASL_MECHANISM: PLAIN
-      KAFKA_CONFLUENT_METADATA_SASL_JAAS_CONFIG: |
-        \
-        org.apache.kafka.common.security.plain.PlainLoginModule required \
-        username="mds" \
-        password="mds-secret";
-      KAFKA_CONFLUENT_METADATA_TOPIC_REPLICATION_FACTOR: 1
   kafka2:
     image: confluentinc/cp-server:7.1.0
     hostname: kafka2
@@ -179,6 +198,36 @@ services:
               org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
               publicKeyPath="/tmp/conf/public.pem";
 
+
+      # CONFIGURE AUTHORIZER
+      # Setup kafka to user RBAC authorizer
+      KAFKA_AUTHORIZER_CLASS_NAME: io.confluent.kafka.security.authorizer.ConfluentServerAuthorizer
+      KAFKA_CONFLUENT_AUTHORIZER_ACCESS_RULE_PROVIDERS: CONFLUENT,ZK_ACL
+
+      # ======================== CONFIGURE MDS ====================================
+      # Configure how MDS talks to broker
+      KAFKA_CONFLUENT_METADATA_BOOTSTRAP_SERVERS: INTERNAL://kafka2:8091
+      KAFKA_CONFLUENT_METADATA_SASL_MECHANISM: PLAIN
+      KAFKA_CONFLUENT_METADATA_SASL_JAAS_CONFIG: |
+        org.apache.kafka.common.security.plain.PlainLoginModule required \
+        username="mds" \
+        password="mds-secret";
+      KAFKA_CONFLUENT_METADATA_TOPIC_REPLICATION_FACTOR: 2
+
+      # Configure MDS listener and http server
+      KAFKA_CONFLUENT_METADATA_SERVER_AUTHENTICATION_METHOD: BEARER
+      KAFKA_CONFLUENT_METADATA_SERVER_LISTENERS: http://0.0.0.0:8091
+      KAFKA_CONFLUENT_METADATA_SERVER_ADVERTISED_LISTENERS: http://kafka1:8091
+
+      # Configure RBAC token server (authentication)
+      KAFKA_CONFLUENT_METADATA_SERVER_TOKEN_MAX_LIFETIME_MS: 3600000
+      KAFKA_CONFLUENT_METADATA_SERVER_TOKEN_SIGNATURE_ALGORITHM: RS256
+      KAFKA_CONFLUENT_METADATA_SERVER_TOKEN_KEY_PATH: /tmp/conf/keypair.pem
+      ###########################################################KAFKA_CONFLUENT_METADATA_SERVER_PUBLIC_KEY_PATH: /tmp/conf/public.pem
+
+
+
+      # ======================== CONFIGURE METRICS REPORTER =======================
       # Confluent Metrics Reporter
       KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 2
@@ -206,17 +255,7 @@ services:
       KAFKA_DELETE_TOPIC_ENABLE: 'true'
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_DEFAULT_REPLICATION_FACTOR: 2
-
-       # ======================== CONFIGURE MDS ====================================
-      KAFKA_AUTHORIZER_CLASS_NAME: io.confluent.kafka.security.authorizer.ConfluentServerAuthorizer
-      KAFKA_CONFLUENT_METADATA_BOOTSTRAP_SERVERS: INTERNAL://kafka2:8091
-      KAFKA_CONFLUENT_METADATA_SASL_MECHANISM: PLAIN
-      KAFKA_CONFLUENT_METADATA_SASL_JAAS_CONFIG: |
-        \
-        org.apache.kafka.common.security.plain.PlainLoginModule required \
-        username="mds" \
-        password="mds-secret";
-      KAFKA_CONFLUENT_METADATA_TOPIC_REPLICATION_FACTOR: 1
+  
   control-center:
     image: confluentinc/cp-enterprise-control-center:7.1.0
     hostname: control-center
