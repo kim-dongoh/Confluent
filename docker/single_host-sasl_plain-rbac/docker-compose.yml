@@ -224,7 +224,7 @@ services:
       KAFKA_CONFLUENT_METADATA_SERVER_TOKEN_SIGNATURE_ALGORITHM: RS256
       KAFKA_CONFLUENT_METADATA_SERVER_TOKEN_KEY_PATH: /tmp/conf/keypair.pem
       ###########################################################KAFKA_CONFLUENT_METADATA_SERVER_PUBLIC_KEY_PATH: /tmp/conf/public.pem
-
+      
 
 
       # ======================== CONFIGURE METRICS REPORTER =======================
