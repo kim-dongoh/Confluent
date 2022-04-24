@@ -17,3 +17,17 @@ build_tools_image()
     exit 1
   }
 }
+
+get_kafka_cluster_id_from_container()
+{
+  ZK_CONTAINER=zookeeper1
+  ZK_PORT=2181
+  KAFKA_CLUSTER_ID=$(docker exec -it $ZK_CONTAINER zookeeper-shell localhost:$ZK_PORT get /cluster/id 2> /dev/null | grep \"version\" | jq -r .id)
+  
+  if [ -z "$KAFKA_CLUSTER_ID" ]; then
+    echo "Failed to retrieve Kafka cluster id"
+    exit 1
+  fi
+  echo $KAFKA_CLUSTER_ID
+  return 0
+}

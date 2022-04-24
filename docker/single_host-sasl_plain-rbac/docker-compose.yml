@@ -15,6 +15,7 @@ services:
     tty: true
     environment:
       TZ: America/New_York
+      KAFKA_CLUSTER_ID: "${KAFKA_CLUSTER_ID}"
   
   zookeeper1:
     # docker hub의 zookeeper 경로:버전
