@@ -66,10 +66,10 @@ build_tools_image
 # Bring up tools
 docker-compose up --no-recreate -d tools
 
-# Add root CA to container (obviates need for supplying it at CLI login '--ca-cert-path')
-docker-compose exec tools bash -c "cp /etc/kafka/secrets/snakeoil-ca-1.crt /usr/local/share/ca-certificates && /usr/sbin/update-ca-certificates"
-
-
+## Add root CA to container (obviates need for supplying it at CLI login '--ca-cert-path')
+#docker-compose exec tools bash -c "cp /etc/kafka/secrets/snakeoil-ca-1.crt /usr/local/share/ca-certificates && /usr/sbin/update-ca-certificates"
+#
+#
 # Bring up base kafka cluster
 docker-compose up --no-recreate -d zookeeper kafka1 kafka2
 
@@ -187,14 +187,12 @@ fi
 echo
 echo -e "\nAvailable LDAP users:"
 #docker-compose exec openldap ldapsearch -x -h localhost -b dc=confluentdemo,dc=io -D "cn=admin,dc=confluentdemo,dc=io" -w admin | grep uid:
-curl -u mds:mds -X POST "https://localhost:8091/security/1.0/principals/User%3Amds/roles/UserAdmin" \
+curl -u mds:mds -X POST "http://localhost:8091/security/1.0/principals/User%3Amds/roles/UserAdmin" \
   -H "accept: application/json" -H "Content-Type: application/json" \
-  -d "{\"clusters\":{\"kafka-cluster\":\"does_not_matter\"}}" \
-  --cacert ${DIR}/security/snakeoil-ca-1.crt --tlsv1.2
-curl -u mds:mds -X POST "https://localhost:8091/security/1.0/rbac/principals" --silent \
+  -d "{\"clusters\":{\"kafka-cluster\":\"does_not_matter\"}}"
+curl -u mds:mds -X POST "http://localhost:8091/security/1.0/rbac/principals" --silent \
   -H "accept: application/json"  -H "Content-Type: application/json" \
-  -d "{\"clusters\":{\"kafka-cluster\":\"does_not_matter\"}}" \
-  --cacert ${DIR}/security/snakeoil-ca-1.crt --tlsv1.2 | jq '.[]'
+  -d "{\"clusters\":{\"kafka-cluster\":\"does_not_matter\"}}" | jq '.[]'
 
 ###################################################################################################################################################
 # Do poststart_checks
