@@ -23,3 +23,14 @@ sudo apt install confluent-librdkafka-plugins
 ```
 sudo apt install librdkafka-dev
 ```
+
+### repository 삭제 및 패키지 재설치
+```
+sudo add-apt-repository --remove "deb https://packages.confluent.io/clients/deb $(lsb_release -cs) main"
+```
+```
+sudo apt purge confluent-librdkafka-plugins
+```
+```
+sudo apt install confluent-librdkafka-plugins
+```
