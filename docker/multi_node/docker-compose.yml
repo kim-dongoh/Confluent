@@ -1,5 +1,19 @@
 ---
 services:
+  openldap:
+    image: osixia/openldap:1.5.0
+    ports:
+      - 389:389
+    hostname: openldap
+    container_name: openldap
+    environment:
+      LDAP_ORGANISATION: example
+      LDAP_DOMAIN: example.org
+      LDAP_BASE_DN: dc=example,dc=org
+    command: "--copy-service"
+    volumes:
+      - ./ldap_users:/container/service/slapd/assets/config/bootstrap/ldif/custom
+
   zookeeper1:
     image: confluentinc/cp-zookeeper:7.1.1
     container_name: zookeeper1
