@@ -24,7 +24,7 @@ services:
       PHPLDAPADMIN_HTTPS: false
 
   zookeeper1:
-    image: confluentinc/cp-zookeeper:7.1.1
+    image: confluentinc/cp-zookeeper:7.2.1
     container_name: zookeeper1
     ports:
       - 2181:2181
@@ -42,7 +42,7 @@ services:
       - ./zookeeperDir/zookeeper1/log:/var/lib/zookeeper/log
 
   zookeeper2:
-    image: confluentinc/cp-zookeeper:7.1.1
+    image: confluentinc/cp-zookeeper:7.2.1
     container_name: zookeeper2
     ports:
       - 2182:2182
@@ -60,7 +60,7 @@ services:
       - ./zookeeperDir/zookeeper2/log:/var/lib/zookeeper/log
 
   zookeeper3:
-    image: confluentinc/cp-zookeeper:7.1.1
+    image: confluentinc/cp-zookeeper:7.2.1
     container_name: zookeeper3
     ports:
       - 2183:2183
@@ -78,7 +78,7 @@ services:
       - ./zookeeperDir/zookeeper3/log:/var/lib/zookeeper/log
 
   kafka1:
-    image: confluentinc/cp-server:7.1.1
+    image: confluentinc/cp-server:7.2.1
     container_name: kafka1
     ports:
       - 8090:8090
@@ -162,7 +162,7 @@ services:
       - ./prop:/tmp/prop
   
   kafka2:
-    image: confluentinc/cp-server:7.1.1
+    image: confluentinc/cp-server:7.2.1
     container_name: kafka2
     ports:
       - 8091:8091
@@ -245,7 +245,7 @@ services:
       - ./keypair:/tmp/conf
       - ./prop:/tmp/prop
   kafka3:
-    image: confluentinc/cp-server:7.1.1
+    image: confluentinc/cp-server:7.2.1
     container_name: kafka3
     ports:
       - 8092:8092
