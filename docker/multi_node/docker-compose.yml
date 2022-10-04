@@ -119,6 +119,11 @@ services:
       KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 2
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      
+      # Metrics Reporter
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 2
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka1:9092,kafka2:10092,kafka3:11092
 
       # MDS
       KAFKA_CONFLUENT_METADATA_TOPIC_REPLICATION_FACTOR: 2
@@ -204,6 +209,11 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
 
+      # Metrics Reporter
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 2
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka1:9092,kafka2:10092,kafka3:11092
+      
       # MDS
       KAFKA_CONFLUENT_METADATA_TOPIC_REPLICATION_FACTOR: 2
       KAFKA_CONFLUENT_METADATA_SERVER_AUTHENTICATION_METHOD: BEARER
@@ -244,6 +254,7 @@ services:
       - ./kafkaDir/kafka2/data:/var/lib/kafka/data
       - ./keypair:/tmp/conf
       - ./prop:/tmp/prop
+  
   kafka3:
     image: confluentinc/cp-server:7.2.1
     container_name: kafka3
@@ -287,6 +298,11 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
 
+      # Metrics Reporter
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 2
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka1:9092,kafka2:10092,kafka3:11092
+      
       # MDS
       KAFKA_CONFLUENT_METADATA_TOPIC_REPLICATION_FACTOR: 2
       KAFKA_CONFLUENT_METADATA_SERVER_AUTHENTICATION_METHOD: BEARER
@@ -327,3 +343,42 @@ services:
       - ./kafkaDir/kafka3/data:/var/lib/kafka/data
       - ./keypair:/tmp/conf
       - ./prop:/tmp/prop
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:7.2.1
+    container_name: control-center
+    ports:
+      - 9021:9021
+    environment:
+      CUB_CLASSPATH: '/usr/share/java/confluent-control-center/*:/usr/share/java/rest-utils/*:/usr/share/java/confluent-common/*:/usr/share/java/confluent-security/kafka-rest/*:/usr/share/java/kafka-rest/:/usr/share/java/cp-base-new/*'
+
+      # Token 인증과 연결
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: SASL_PLAINTEXT://kafka1:9094,SASL_PLAINTEXT://kafka2:10094,SASL_PLAINTEXT://kafka3:11094
+      CONTROL_CENTER_REPLICATION_FACTOR: 2
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 2
+
+      # Control Center uses Kafka Streams to process metrics
+      CONTROL_CENTER_STREAMS_SECURITY_PROTOCOL: SASL_PLAINTEXT
+      CONTROL_CENTER_STREAMS_SASL_MECHANISM: OAUTHBEARER
+      CONTROL_CENTER_STREAMS_SASL_LOGIN_CALLBACK_HANDLER_CLASS: io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler
+      CONTROL_CENTER_STREAMS_SASL_JAAS_CONFIG: |
+        org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+        username="alice" \
+        password="alice-secret" \
+        metadataServerUrls="http://kafka1:8090,http://kafka2:8091,http://kafka3:8092";
+
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_REPLICATION: 2
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 2
+      CONTROL_CENTER_METRICS_TOPIC_REPLICATION: 2
+      CONTROL_CENTER_METRICS_TOPIC_PARTITIONS: 2
+
+      # RBAC
+      CONTROL_CENTER_REST_AUTHENTICATION_METHOD: BEARER
+      PUBLIC_KEY_PATH: /tmp/conf/public.pem
+
+      # Used by Control Center to connect to MDS to verify tokens and authenticate clients
+      CONFLUENT_METADATA_BOOTSTRAP_SERVER_URLS: http://kafka1:8090,http://kafka2:8091,http://kafka3:8092
+      CONFLUENT_METADATA_BASIC_AUTH_USER_INFO: alice:alice-secret
+
+    volumes:
+      - ./keypair:/tmp/conf
