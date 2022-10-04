@@ -14,6 +14,15 @@ services:
     volumes:
       - ./ldap_users:/container/service/slapd/assets/config/bootstrap/ldif/custom
 
+  phpldapadmin:
+    image: osixia/phpldapadmin:0.9.0
+    ports:
+      - 8080:80
+    container_name: phpldapadmin
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: openldap
+      PHPLDAPADMIN_HTTPS: false
+
   zookeeper1:
     image: confluentinc/cp-zookeeper:7.1.1
     container_name: zookeeper1
