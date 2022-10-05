@@ -372,6 +372,9 @@ services:
       CONTROL_CENTER_METRICS_TOPIC_REPLICATION: 2
       CONTROL_CENTER_METRICS_TOPIC_PARTITIONS: 2
 
+      # Schema Registry
+      CONTROL_CENTER_SCHEMA_REGISTRY_SR1_URL: http://schemaregistry:8081
+
       # RBAC
       CONTROL_CENTER_REST_AUTHENTICATION_METHOD: BEARER
       PUBLIC_KEY_PATH: /tmp/conf/public.pem
@@ -379,6 +382,43 @@ services:
       # Used by Control Center to connect to MDS to verify tokens and authenticate clients
       CONFLUENT_METADATA_BOOTSTRAP_SERVER_URLS: http://kafka1:8090,http://kafka2:8091,http://kafka3:8092
       CONFLUENT_METADATA_BASIC_AUTH_USER_INFO: alice:alice-secret
+
+    volumes:
+      - ./keypair:/tmp/conf
+
+  schemaregistry:
+    image: confluentinc/cp-schema-registry:7.2.1
+    hostname: schemaregistry
+    container_name: schemaregistry
+    ports:
+      - 8081:8081
+    environment:
+      CUB_CLASSPATH: '/usr/share/java/confluent-security/schema-registry/*:/usr/share/java/schema-registry/*:/usr/share/java/cp-base-new/*'
+      
+      SCHEMA_REGISTRY_HOST_NAME: schemaregistry
+
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka1:9094,kafka2:10094,kafka3:11094
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: SASL_PLAINTEXT
+
+      SCHEMA_REGISTRY_KAFKASTORE_SASL_MECHANISM: OAUTHBEARER
+      SCHEMA_REGISTRY_KAFKASTORE_SASL_LOGIN_CALLBACK_HANDLER_CLASS: io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler
+      SCHEMA_REGISTRY_KAFKASTORE_SASL_JAAS_CONFIG: |
+        org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+        username="alice" \
+        password="alice-secret" \
+        metadataServerUrls="http://kafka1:8090,http://kafka2:8091,http://kafka3:8092";
+
+      # Enable bearer token authentication which allows the identity of the Schema Registry end user to be propagated to Kafka for authorization
+      SCHEMA_REGISTRY_SCHEMA_REGISTRY_RESOURCE_EXTENSION_CLASS: io.confluent.kafka.schemaregistry.security.SchemaRegistrySecurityResourceExtension
+      SCHEMA_REGISTRY_CONFLUENT_SCHEMA_REGISTRY_AUTHORIZER_CLASS: io.confluent.kafka.schemaregistry.security.authorizer.rbac.RbacAuthorizer
+      SCHEMA_REGISTRY_REST_SERVLET_INITIALIZOR_CLASSES: io.confluent.common.security.jetty.initializer.InstallBearerOrBasicSecurityHandler
+      SCHEMA_REGISTRY_PUBLIC_KEY_PATH: /tmp/conf/public.pem
+
+      # Used by Schema Registry to connect to MDS to authenticate and authorize clients
+      SCHEMA_REGISTRY_CONFLUENT_METADATA_HTTP_AUTH_CREDENTIALS_PROVIDER: BASIC
+      SCHEMA_REGISTRY_CONFLUENT_METADATA_BOOTSTRAP_SERVER_URLS: http://kafka1:8090,http://kafka2:8091,http://kafka3:8092
+      SCHEMA_REGISTRY_CONFLUENT_METADATA_BASIC_AUTH_USER_INFO: alice:alice-secret
 
     volumes:
       - ./keypair:/tmp/conf
