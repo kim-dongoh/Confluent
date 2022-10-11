@@ -375,6 +375,9 @@ services:
       # Schema Registry
       CONTROL_CENTER_SCHEMA_REGISTRY_SR1_URL: http://schemaregistry:8081
 
+      # Connect
+      CONTROL_CENTER_CONNECT_CONNECT1_CLUSTER: http://connect:8083
+
       # RBAC
       CONTROL_CENTER_REST_AUTHENTICATION_METHOD: BEARER
       PUBLIC_KEY_PATH: /tmp/conf/public.pem
