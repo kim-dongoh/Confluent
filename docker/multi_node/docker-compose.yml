@@ -428,7 +428,7 @@ services:
     ports:
       - 8083:8083
     environment:
-      CUB_CLASSPATH: '/etc/confluent/docker/docker-utils.jar:/usr/share/java/confluent-security/connect/*:/usr/share/java/kafka/*:/usr/share/java/cp-base-new/*'
+      CUB_CLASSPATH: '/usr/share/java/confluent-security/connect/*:/usr/share/java/kafka/*:/usr/share/java/cp-base-new/*'
 
       # general settings
       CONNECT_REST_ADVERTISED_HOST_NAME: connect
