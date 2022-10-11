@@ -378,6 +378,11 @@ services:
       # Connect
       CONTROL_CENTER_CONNECT_CONNECT1_CLUSTER: http://connect:8083
 
+      # ksqlDB
+      # Communication between Control Center and ksqlDB Docker containers
+      CONTROL_CENTER_KSQL_HOGNOD_URL: http://ksqldb-server:8088
+      CONTROL_CENTER_KSQL_HOGNOD_ADVERTISED_URL: http://localhost:8088
+
       # RBAC
       CONTROL_CENTER_REST_AUTHENTICATION_METHOD: BEARER
       PUBLIC_KEY_PATH: /tmp/conf/public.pem
@@ -541,5 +546,66 @@ services:
       KAFKA_REST_CONFLUENT_METADATA_BOOTSTRAP_SERVER_URLS: http://kafka1:8090,http://kafka2:8091,http://kafka3:8092
       KAFKA_REST_CONFLUENT_METADATA_HTTP_AUTH_CREDENTIALS_PROVIDER: BASIC
       KAFKA_REST_CONFLUENT_METADATA_BASIC_AUTH_USER_INFO: alice:alice-secret
+    volumes:
+      - ./keypair:/tmp/conf
+
+  ksqldb-server:
+    image: confluentinc/cp-ksqldb-server:7.2.1
+    container_name: ksqldb-server
+    ports:
+      - 8088:8088
+    environment:
+      CUB_CLASSPATH: '/usr/share/java/confluent-security/ksql/*:/usr/share/java/ksqldb-server/*:/usr/share/java/cp-base-new/*'
+      KSQL_KSQL_SERVICE_ID: ksql-cluster
+      KSQL_KSQL_STREAMS_REPLICATION_FACTOR: 2
+      KSQL_KSQL_INTERNAL_TOPIC_REPLICAS: 2
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_REPLICATION_FACTOR: 2
+
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: 'true'
+      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: 'true'
+
+      KSQL_BOOTSTRAP_SERVERS: kafka1:9094,kafka2:10094,kafka3:11094
+      KSQL_LISTENERS: http://0.0.0.0:8088
+      KSQL_CACHE_MAX_BYTES_BUFFERING: 0
+
+      KSQL_KSQL_SECURITY_EXTENSION_CLASS: io.confluent.ksql.security.KsqlConfluentSecurityExtension
+
+      # Enable bearer token authentication which allows the identity of the ksqlDB end user to be propagated to Kafka for authorization
+      KSQL_KSQL_AUTHENTICATION_PLUGIN_CLASS: io.confluent.ksql.security.VertxBearerOrBasicAuthenticationPlugin
+      KSQL_PUBLIC_KEY_PATH: /tmp/conf/public.pem
+
+      # Used by ksqlDB's REST layer to connect to MDS to verify tokens and authenticate clients
+      KSQL_CONFLUENT_METADATA_BOOTSTRAP_SERVER_URLS: http://kafka1:8090,http://kafka2:8091,http://kafka3:8092
+      KSQL_CONFLUENT_METADATA_HTTP_AUTH_CREDENTIALS_PROVIDER: BASIC
+      KSQL_CONFLUENT_METADATA_BASIC_AUTH_CREDENTIALS_PROVIDER: USER_INFO
+      KSQL_CONFLUENT_METADATA_BASIC_AUTH_USER_INFO: alice:alice-secret
+
+      # Schema Registry using HTTPS
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schemaregistry:8081
+
+      # Enable OAuth for ksqlDB's embedded Kafka clients that access and manage consumer groups and topics
+      KSQL_SECURITY_PROTOCOL: SASL_PLAINTEXT
+      KSQL_SASL_MECHANISM: OAUTHBEARER
+      KSQL_SASL_LOGIN_CALLBACK_HANDLER_CLASS: io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler
+      KSQL_SASL_JAAS_CONFIG: |
+        org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+        username="alice" \
+        password="alice-secret" \
+        metadataServerUrls="http://kafka1:8090,http://kafka2:8091,http://kafka3:8092";
+
+      KSQL_KSQL_SCHEMA_REGISTRY_BASIC_AUTH_CREDENTIALS_SOURCE: USER_INFO
+      KSQL_KSQL_SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO: alice:alice-secret
+
+      # Confluent Monitoring Interceptors for Control Center streams monitoring
+      KSQL_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      KSQL_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+      KSQL_CONFLUENT_MONITORING_INTERCEPTOR_SECURITY_PROTOCOL: SASL_PLAINTEXT
+      KSQL_CONFLUENT_MONITORING_INTERCEPTOR_SASL_MECHANISM: OAUTHBEARER
+      KSQL_CONFLUENT_MONITORING_INTERCEPTOR_SASL_LOGIN_CALLBACK_HANDLER_CLASS: io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler
+      KSQL_CONFLUENT_MONITORING_INTERCEPTOR_SASL_JAAS_CONFIG: |
+        org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+        username="alice" \
+        password="alice-secret" \
+        metadataServerUrls="http://kafka1:8090,http://kafka2:8091,http://kafka3:8092";
     volumes:
       - ./keypair:/tmp/conf
